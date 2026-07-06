@@ -1,0 +1,167 @@
+// Lab 4: Web API CRUD Operations (PUT & DELETE)
+
+// Objectives:
+// - Perform Update & Delete operations using Web API
+// - Use FromBody attribute to extract data from request body
+// - Use Swagger and POSTMAN to test CRUD operations
+
+// Step 1: Update EmployeeController with PUT and DELETE methods
+
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApiHandson.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmployeeController : ControllerBase
+    {
+        // Hardcoded employee list (static to persist during app session)
+        private static List<Employee> _employees = new List<Employee>
+        {
+            new Employee { Id = 1, Name = "John", Salary = 50000, Permanent = true,
+                Department = new Department { Id = 1, Name = "IT" },
+                Skills = new List<Skill> { new Skill { Id = 1, Name = "C#" } },
+                DateOfBirth = new DateTime(1990, 1, 1) },
+
+            new Employee { Id = 2, Name = "Jane", Salary = 60000, Permanent = false,
+                Department = new Department { Id = 2, Name = "HR" },
+                Skills = new List<Skill> { new Skill { Id = 2, Name = "Communication" } },
+                DateOfBirth = new DateTime(1992, 5, 15) }
+        };
+
+        // GET api/employee
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<Employee>> Get()
+        {
+            return Ok(_employees);
+        }
+
+        // GET api/employee/1
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Employee> Get(int id)
+        {
+            var employee = _employees.FirstOrDefault(e => e.Id == id);
+            if (employee == null)
+                return BadRequest("Invalid employee id");
+
+            return Ok(employee);
+        }
+
+        // POST api/employee
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Employee> Post([FromBody] Employee employee)
+        {
+            if (employee == null)
+                return BadRequest("Invalid employee data");
+
+            _employees.Add(employee);
+            return Ok(employee);
+        }
+
+        // PUT api/employee/1
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Employee> Put(int id, [FromBody] Employee employee)
+        {
+            // Check if id is valid
+            if (id <= 0)
+                return BadRequest("Invalid employee id");
+
+            // Check if employee exists in list
+            var existing = _employees.FirstOrDefault(e => e.Id == id);
+            if (existing == null)
+                return BadRequest("Invalid employee id");
+
+            // Update employee data
+            existing.Name = employee.Name;
+            existing.Salary = employee.Salary;
+            existing.Permanent = employee.Permanent;
+            existing.Department = employee.Department;
+            existing.Skills = employee.Skills;
+            existing.DateOfBirth = employee.DateOfBirth;
+
+            return Ok(existing);
+        }
+
+        // DELETE api/employee/1
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<Employee> Delete(int id)
+        {
+            // Check if id is valid
+            if (id <= 0)
+                return BadRequest("Invalid employee id");
+
+            // Check if employee exists
+            var existing = _employees.FirstOrDefault(e => e.Id == id);
+            if (existing == null)
+                return BadRequest("Invalid employee id");
+
+            // Remove employee from list
+            _employees.Remove(existing);
+            return Ok(existing);
+        }
+    }
+}
+
+// Step 2: Test using Swagger
+// Run app: dotnet run
+// Open: https://localhost:[port]/swagger
+// Test PUT:
+//   - Click PUT /api/employee/{id}
+//   - Click "Try it out"
+//   - Enter id: 1
+//   - Enter JSON body:
+//     {
+//       "id": 1,
+//       "name": "John Updated",
+//       "salary": 55000,
+//       "permanent": true,
+//       "department": { "id": 1, "name": "IT" },
+//       "skills": [{ "id": 1, "name": "C#" }],
+//       "dateOfBirth": "1990-01-01"
+//     }
+//   - Click Execute -> Verify 200 OK response
+
+// Test DELETE:
+//   - Click DELETE /api/employee/{id}
+//   - Click "Try it out"
+//   - Enter id: 2
+//   - Click Execute -> Verify 200 OK response
+
+// Step 3: Test using POSTMAN
+// PUT Request:
+//   - Method: PUT
+//   - URL: https://localhost:[port]/api/employee/1
+//   - Headers: Content-Type: application/json
+//   - Body (raw JSON):
+//     {
+//       "id": 1,
+//       "name": "John Updated",
+//       "salary": 55000,
+//       "permanent": true,
+//       "department": { "id": 1, "name": "IT" },
+//       "skills": [{ "id": 1, "name": "C#" }],
+//       "dateOfBirth": "1990-01-01"
+//     }
+//   - Click Send -> Verify Status: 200 OK
+
+// DELETE Request:
+//   - Method: DELETE
+//   - URL: https://localhost:[port]/api/employee/2
+//   - Click Send -> Verify Status: 200 OK
+
+// Key Concepts:
+// PUT - Updates existing resource (full update)
+// DELETE - Removes existing resource
+// FromBody - Reads JSON data from request body
+// Static List - Used to persist data during app session (no database)
+// BadRequest (400) - Invalid input from client
+// Ok (200) - Successful operation with response data

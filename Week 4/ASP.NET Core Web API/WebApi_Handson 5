@@ -1,0 +1,196 @@
+// Lab 5: JWT Authentication in ASP.NET Core Web API
+
+// Objectives:
+// - Enable CORS in Web API
+// - Implement JWT Bearer Token Authentication
+// - Use Authorize attribute with Roles
+// - Test JWT expiration using POSTMAN
+
+// Step 1: Install required NuGet packages
+// dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+// dotnet add package System.IdentityModel.Tokens.Jwt
+
+// Step 2: Configure JWT Authentication in Program.cs
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// CORS Configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// JWT Authentication Configuration
+string securityKey = "mysuperdupersecret";
+var symmetricSecurityKey = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(securityKey));
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        // What to validate
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        // Validation data
+        ValidIssuer = "mySystem",
+        ValidAudience = "myUsers",
+        IssuerSigningKey = symmetricSecurityKey
+    };
+});
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("AllowAll");
+app.UseAuthentication();  // Must be before UseAuthorization
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
+
+// Step 3: Create AuthController to generate JWT token
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace WebApiHandson.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [AllowAnonymous]  // No authentication required for token generation
+    public class AuthController : ControllerBase
+    {
+        private string GenerateJSONWebToken(int userId, string userRole)
+        {
+            var securityKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes("mysuperdupersecret"));
+
+            var credentials = new SigningCredentials(
+                securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Role, userRole),
+                new Claim("UserId", userId.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: "mySystem",
+                audience: "myUsers",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),  // Token valid for 10 mins
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        // GET api/auth
+        [HttpGet]
+        public ActionResult<string> Get()
+        {
+            // Generate token for userId=1, role=Admin
+            string token = GenerateJSONWebToken(1, "Admin");
+            return Ok(token);
+        }
+    }
+}
+
+// Step 4: Protect EmployeeController with Authorize attribute
+
+namespace WebApiHandson.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(Roles = "Admin,POC")]  // Only Admin or POC roles allowed
+    public class EmployeeController : ControllerBase
+    {
+        // GET api/employee
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public ActionResult<IEnumerable<string>> Get()
+        {
+            return Ok(new string[] { "John", "Jane" });
+        }
+    }
+}
+
+// Step 5: Test using POSTMAN
+
+// Test 1 - Without Token (should get 401 Unauthorized):
+//   - Method: GET
+//   - URL: https://localhost:[port]/api/employee
+//   - Click Send
+//   - Verify Status: 401 Unauthorized
+
+// Test 2 - Generate JWT Token:
+//   - Method: GET
+//   - URL: https://localhost:[port]/api/auth
+//   - Click Send
+//   - Copy the token from response body
+
+// Test 3 - With Valid Token (should get 200 OK):
+//   - Method: GET
+//   - URL: https://localhost:[port]/api/employee
+//   - Headers: Authorization: Bearer [paste token here]
+//   - Click Send
+//   - Verify Status: 200 OK
+
+// Test 4 - With Modified Token (should get 401 Unauthorized):
+//   - Same as Test 3 but modify token value
+//   - Verify Status: 401 Unauthorized
+
+// Test 5 - JWT Expiration:
+//   - Change expires to: DateTime.Now.AddMinutes(2)
+//   - Generate new token
+//   - Wait 2 minutes
+//   - Hit GET api/employee with that token
+//   - Verify Status: 401 Unauthorized
+
+// Test 6 - Role based Authorization:
+//   - [Authorize(Roles = "POC")] -- 401 Unauthorized
+//     (token has Admin role, not POC)
+//   - [Authorize(Roles = "Admin,POC")] -- 200 OK
+//     (token has Admin role which is in allowed list)
+
+// Key Concepts:
+// JWT - JSON Web Token, used for stateless authentication
+// Bearer Token - Token passed in Authorization header
+// Claims - Key-value pairs inside JWT (UserId, Role etc.)
+// Authorize attribute - Protects controller/action from unauthorized access
+// AllowAnonymous - Skips authentication for specific controller/action
+// CORS - Cross Origin Resource Sharing, allows API access from other domains
+// JwtSecurityToken - .NET class to create/read JWT tokens
+// SymmetricSecurityKey - Same key used to sign and verify JWT
+// HmacSha256 - Hashing algorithm used to sign the JWT

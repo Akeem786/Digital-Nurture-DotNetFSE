@@ -1,0 +1,74 @@
+// Lab 1: First Web API using ASP.NET Core
+
+// Objectives:
+// - Understand RESTful web service, Web API & Microservice concepts
+// - Learn HttpRequest & HttpResponse
+// - Learn Action Verbs: HttpGet, HttpPost, HttpPut, HttpDelete
+// - Learn HttpStatusCodes: Ok, InternalServerError, Unauthorized, BadRequest
+// - Create a simple Web API with Read & Write actions
+
+// Step 1: Create a new ASP.NET Core Web API project
+// Command:
+// dotnet new webapi -n WebApiHandson
+// cd WebApiHandson
+
+// Step 2: Run the application
+// dotnet run
+// Default ValuesController will be created with GET, POST, PUT, DELETE action methods
+
+// Step 3: Default ValuesController structure (auto-generated)
+
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApiHandson.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ValuesController : ControllerBase
+    {
+        // GET api/values
+        [HttpGet]
+        public ActionResult<IEnumerable<string>> Get()
+        {
+            return new string[] { "value1", "value2" };
+        }
+
+        // GET api/values/5
+        [HttpGet("{id}")]
+        public ActionResult<string> Get(int id)
+        {
+            return "value";
+        }
+
+        // POST api/values
+        [HttpPost]
+        public void Post([FromBody] string value)
+        {
+        }
+
+        // PUT api/values/5
+        [HttpPut("{id}")]
+        public void Put(int id, [FromBody] string value)
+        {
+        }
+
+        // DELETE api/values/5
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
+        }
+    }
+}
+
+// Key Concepts:
+// REST - Representational State Transfer, Stateless architecture
+// Web API - HTTP based service, not restricted to XML (supports JSON)
+// Microservice - Small, independent deployable service
+// [ApiController] - Enables automatic model validation
+// [Route] - Defines URL pattern for controller
+// ControllerBase - Base class for Web API controllers (no View support)
+
+// Configuration Files:
+// - Startup.cs / Program.cs - Dependency injection & middleware setup
+// - appsettings.json - Application configuration (connection strings, keys)
+// - launchSettings.json - Local dev server settings (port, environment)

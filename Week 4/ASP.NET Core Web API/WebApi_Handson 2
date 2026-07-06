@@ -1,0 +1,99 @@
+// Lab 2: Web API with Swagger + Postman
+
+// Objectives:
+// - Install Swagger (Swashbuckle.AspNetCore) to Web API
+// - Use ProducesResponseType attribute
+// - Use Postman to test Web API methods
+// - Understand Route and Name attributes in Http requests
+
+// Step 1: Install Swagger NuGet package
+// dotnet add package Swashbuckle.AspNetCore
+
+// Step 2: Configure Swagger in Program.cs
+
+using Microsoft.AspNetCore.Mvc;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Swagger Demo",
+        Version = "v1",
+        Description = "Web API Hands-on Demo",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "John Doe",
+            Email = "john@xyzmail.com",
+            Url = new Uri("https://www.example.com")
+        }
+    });
+});
+
+var app = builder.Build();
+
+// Step 3: Enable Swagger middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Demo");
+    });
+}
+
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
+
+// Step 4: ValuesController with ProducesResponseType
+
+namespace WebApiHandson.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ValuesController : ControllerBase
+    {
+        // GET api/values
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<string>> Get()
+        {
+            return Ok(new string[] { "value1", "value2" });
+        }
+
+        // GET api/values/5
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<string> Get(int id)
+        {
+            return Ok("value");
+        }
+    }
+}
+
+// Step 5: Test using Swagger UI
+// Run app: dotnet run
+// Open browser: https://localhost:[port]/swagger
+// - Notice Title, Version, Contact details on top
+// - Click GET method -> Try it out -> Execute
+// - Check Response Body and Status Code
+
+// Step 6: Test using POSTMAN
+// - Open Postman
+// - Create new GET request: https://localhost:[port]/api/values
+// - Click Send
+// - Verify output in Body section (JSON response)
+// - Verify Status: 200 OK on right side
+
+// Key Concepts:
+// Swagger - API documentation & testing tool (auto-generates UI from code)
+// Swashbuckle - NuGet package to integrate Swagger with ASP.NET Core
+// ProducesResponseType - Documents expected HTTP status codes in Swagger
+// Postman - API testing tool to send HTTP requests manually
+// Route attribute - Customizes URL pattern (e.g. [Route("api/emp")])

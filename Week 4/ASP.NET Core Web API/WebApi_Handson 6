@@ -1,0 +1,176 @@
+// Lab 6: Kafka Integration with C#
+
+// Objectives:
+// - Understand Kafka Architecture
+// - Learn Topics, Partitions, Brokers, Zookeeper
+// - Install and configure Kafka in .NET
+// - Create a Chat Application using Kafka
+
+// =============================================
+// KAFKA CONCEPTS
+// =============================================
+
+// What is Kafka?
+// Apache Kafka is a distributed streaming platform used for:
+// - Real-time data pipelines
+// - Streaming applications
+// - Message broadcasting between services
+
+// Kafka Architecture:
+// - Producer  -> Sends messages to a Topic
+// - Consumer  -> Reads messages from a Topic
+// - Broker    -> Kafka server that stores messages
+// - Topic     -> Category/channel where messages are published
+// - Partition -> Topics are split into partitions for parallel processing
+// - Zookeeper -> Manages Kafka brokers and cluster coordination
+
+// =============================================
+// INSTALLATION STEPS
+// =============================================
+
+// Step 1: Install Kafka NuGet package
+// dotnet add package Confluent.Kafka
+
+// Step 2: Start Zookeeper (in Kafka installation folder)
+// zookeeper-server-start.bat ../../config/zookeeper.properties
+
+// Step 3: Start Kafka Server
+// kafka-server-start.bat ../../config/server.properties
+
+// Step 4: Create a Topic
+// kafka-topics.bat --create --topic chat-topic
+//                  --bootstrap-server localhost:9092
+//                  --partitions 1
+//                  --replication-factor 1
+
+// =============================================
+// PRODUCER (Publisher) - Sends Messages
+// =============================================
+
+using Confluent.Kafka;
+
+namespace KafkaChatApp
+{
+    public class KafkaProducer
+    {
+        private const string BootstrapServers = "localhost:9092";
+        private const string Topic = "chat-topic";
+
+        public static async Task SendMessage(string message)
+        {
+            var config = new ProducerConfig
+            {
+                BootstrapServers = BootstrapServers
+            };
+
+            using var producer = new ProducerBuilder<Null, string>(config).Build();
+
+            var result = await producer.ProduceAsync(Topic,
+                new Message<Null, string> { Value = message });
+
+            Console.WriteLine($"Message sent: {result.Value} " +
+                            $"to partition {result.TopicPartitionOffset}");
+        }
+    }
+}
+
+// =============================================
+// CONSUMER - Receives Messages
+// =============================================
+
+namespace KafkaChatApp
+{
+    public class KafkaConsumer
+    {
+        private const string BootstrapServers = "localhost:9092";
+        private const string Topic = "chat-topic";
+        private const string GroupId = "chat-group";
+
+        public static void ConsumeMessages()
+        {
+            var config = new ConsumerConfig
+            {
+                BootstrapServers = BootstrapServers,
+                GroupId = GroupId,
+                AutoOffsetReset = AutoOffsetReset.Earliest
+            };
+
+            using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
+            consumer.Subscribe(Topic);
+
+            Console.WriteLine("Listening for messages...");
+
+            while (true)
+            {
+                var consumeResult = consumer.Consume();
+                Console.WriteLine($"Message received: {consumeResult.Message.Value}");
+            }
+        }
+    }
+}
+
+// =============================================
+// CHAT APPLICATION - Program.cs
+// =============================================
+
+namespace KafkaChatApp
+{
+    class Program
+    {
+        static async Task Main(string[] args)
+        {
+            Console.WriteLine("Kafka Chat Application");
+            Console.WriteLine("1. Start as Producer (Send messages)");
+            Console.WriteLine("2. Start as Consumer (Receive messages)");
+            Console.Write("Choose option: ");
+
+            string option = Console.ReadLine();
+
+            if (option == "1")
+            {
+                Console.WriteLine("Type messages to send (type 'exit' to quit):");
+                while (true)
+                {
+                    string message = Console.ReadLine();
+                    if (message?.ToLower() == "exit") break;
+                    await KafkaProducer.SendMessage(message);
+                }
+            }
+            else if (option == "2")
+            {
+                KafkaConsumer.ConsumeMessages();
+            }
+        }
+    }
+}
+
+// =============================================
+// EXPECTED OUTPUT
+// =============================================
+
+// Kafka Server Running:
+// kafka-server-start.bat ../../config/server.properties
+
+// Zookeeper Running:
+// zookeeper-server-start.bat ../../config/zookeeper.properties
+
+// Producer Output:
+// Message sent: Hello World to partition chat-topic [0] @1
+
+// Consumer Output:
+// Listening for messages...
+// Message received: Hello World
+
+// Reference Links:
+// https://www.c-sharpcorner.com/article/apache-kafka-net-application/
+// https://www.c-sharpcorner.com/article/step-by-step-installation-and-configuration-guide-of-apache-kafka-on-windows-ope/
+
+// Key Concepts:
+// Kafka    - Distributed streaming platform for real-time messaging
+// Topic    - Named channel where messages are published/consumed
+// Producer - Application that sends/publishes messages to Kafka topic
+// Consumer - Application that reads/subscribes messages from Kafka topic
+// Broker   - Kafka server that stores and manages messages
+// Partition - Subdivision of topic for parallel processing
+// Zookeeper - Manages Kafka cluster, broker coordination
+// GroupId  - Consumer group ID for load balancing between consumers
