@@ -12,7 +12,7 @@
 
 ## 📋 About This Repository
 
-This repository contains all **mandatory hands-on lab submissions** completed as part of the **Cognizant Digital Nurture 4.0 — .NET Full Stack Engineer** training program.
+This repository contains all **mandatory hands-on lab submissions** completed as part of the **Cognizant Digital Nurture 5.0 — .NET Full Stack Engineer** training program.
 
 Each week focuses on a specific technology or concept, with structured labs that build real-world skills in backend development, testing, databases, APIs, and frontend frameworks.
 
