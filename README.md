@@ -1,6 +1,6 @@
 # 🚀 Cognizant Digital Nurture — .NET Full Stack Engineer
 
-![Banner](https://capsule-render.vercel.app/api?type=waving&color=0:1a1a2e,100:16213e&height=200&section=header&text=Digital%20Nurture%20-%20DotNet%20FSE&fontSize=36&fontColor=7dd3fc&animation=twinkling&fontAlignY=35&desc=Hands-On%20Training%20|%20Week%201%20to%20Week%205&descAlignY=55&descColor=a5b4fc)
+![Banner](https://capsule-render.vercel.app/api?type=waving&color=0:1a1a2e,100:16213e&height=200&section=header&text=Digital%20Nurture%20-%20DotNet%20FSE&fontSize=36&fontColor=7dd3fc&animation=twinkling&fontAlignY=35&desc=Hands-On%20Training%20|%20Week%201%20to%20Week%206&descAlignY=55&descColor=a5b4fc)
 
 <p align="center">
   <img src="https://img.shields.io/badge/Program-Cognizant%20Digital%20Nurture-blue?style=for-the-badge&logo=cognizant&logoColor=white" />
@@ -36,12 +36,16 @@ Digital-Nurture-DotNetFSE/
 │   └── ASP.NET Core Web API/
 │       ├── WebApiHandson8/
 │       └── KafkaChatApp/
-└── Week 5/
-    ├── React/
-    │   ├── ReactJS_HOL 1-5
-    │   └── ReactJS_HOL 9-13
-    └── GIT/
-        └── Git_HOL 1-5
+├── Week 5/
+│   ├── React/
+│   │   ├── ReactJS_HOL 1-5
+│   │   └── ReactJS_HOL 9-13
+│   └── GIT/
+│       └── Git_HOL 1-5
+└── Week 6/
+    └── Angular/
+        ├── Angular_HOL 1-10
+        └── db.json (Student Course Portal - Mock API)
 ```
 
 ---
@@ -154,12 +158,49 @@ Digital-Nurture-DotNetFSE/
 
 ---
 
+### ✅ Week 6 — Angular
+
+#### 🅰️ Angular (10 Mandatory Labs)
+
+| Lab | Topic |
+|---|---|
+| Angular HOL 1 | Angular CLI Setup, First Component, Project Structure |
+| Angular HOL 2 | Data Binding — Interpolation, Property & Event Binding |
+| Angular HOL 3 | Directives — ngIf, ngFor, ngClass, ngStyle |
+| Angular HOL 4 | Components & Services, Dependency Injection |
+| Angular HOL 5 | Routing & Navigation between Views |
+| Angular HOL 6 | Forms — Template-Driven & Reactive Forms |
+| Angular HOL 7 | HTTP Client — Fetching data from REST API |
+| Angular HOL 8 | Pipes — Built-in & Custom Pipes |
+| Angular HOL 9 | Lifecycle Hooks — ngOnInit, ngOnChanges |
+| Angular HOL 10 | Student Course Portal — Full Practical Project |
+
+**Practical Project:** `Student Course Portal` — Angular app with mock backend (`db.json`)
+
+```
+✔ Component-based architecture
+✔ Services for API communication
+✔ Routing between Student/Course views
+✔ CRUD operations using HttpClient + json-server
+```
+
+**Tech Used:**
+<p>
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=flat-square&logo=angular&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/RxJS-B7178C?style=flat-square&logo=reactivex&logoColor=white" />
+  <img src="https://img.shields.io/badge/JSON Server-000000?style=flat-square&logo=json&logoColor=white" />
+</p>
+
+---
+
 ## 🛠️ Tech Stack
 
 <p>
   <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white" />
   <img src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
   <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" />
   <img src="https://img.shields.io/badge/SQL Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" />
   <img src="https://img.shields.io/badge/EF Core-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
   <img src="https://img.shields.io/badge/ASP.NET Core-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
@@ -180,7 +221,7 @@ Digital-Nurture-DotNetFSE/
 | Week 3 | Entity Framework Core 8.0 | 5 labs | ✅ Complete |
 | Week 4 | ASP.NET Core Web API + Kafka | 6 labs | ✅ Complete |
 | Week 5 | React + GIT | 15 labs | ✅ Complete |
-| Week 6 | Coming Soon | - | 🔄 In Progress |
+| Week 6 | Angular | 10 labs | ✅ Complete |
 | Week 7 | Coming Soon | - | 🔄 In Progress |
 
 ---
